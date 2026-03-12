@@ -4,7 +4,7 @@ const WeatherCard = () => {
   return (
     <>
       {/* Container principal do weather card */}
-      <section className="h-screen w-screen flex justify-center items-center">
+      <section className="fixed inset-0 -z-10 mt-10 h-screen w-screen flex justify-center items-center">
         {/* Container que cria o card e contém todos os itens dentro do card */}
         <div className="w-4/5 h-9/12 md:w-3/4 lg:w-1/2 p-6 md:p-8 flex flex-col justify-between border rounded-3xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
           <div className="grid grid-cols-2 gap-2 items-center font-bold text-2xl">
