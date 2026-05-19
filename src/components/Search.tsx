@@ -1,27 +1,31 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import React, { useState, useEffect } from "react";
 
-const Search = () => {
-  //interface para tipar os dados necessários para serem usados na aplicação que a api irá retornar quando fizer a chamada.
-  interface City {
-    id: number;
-    name: string;
-    latitude: number;
-    longitude: number;
-    country: string;
-    admin1?: string; //(Estado) Caso a cidade tenha
-  }
+//interface para tipar os dados necessários para serem usados na aplicação que a api irá retornar quando fizer a chamada.
+export interface City {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  admin1?: string; //(Estado) Só retornará se a cidadde tiver essa variável.
+}
 
-  //interface para separar os obejcts das cidades que vem dentro de um array result.
-  interface GeocodingResponse {
-    results?: City[] | any;
-  }
+//interface para separar os obejcts das cidades que vem dentro de um array result.
+export interface GeocodingResponse {
+  results?: City[] | any;
+}
 
+interface SearchProps {
+  onCitySelect: (city: City) => void;
+}
+
+const Search = ({ onCitySelect }: SearchProps) => {
   const [city, setCity] = useState<string>(""); // Estado que vai armazenar o nome da cidade que o usuário digitar na searchBar.
   const [suggestions, setSuggestions] = useState<any>([]); // Estado que vai armazenar os dados retornados pela api.
   const [showDroppdown, setShowDroppdown] = useState<boolean>(false); // Estado para informar ao código quando mostrar o droppdown de sugestões.
 
-  // useEffect permite que toda a ação que estiver dentro dele seja executada
+  // useEffect permite que toda a ação que estiver dentro dele seja executada.
   // apenas com uma condição ou mudança definida.
   useEffect(() => {
     // Cria um timer que vai fazer a chamada da api somente depois que o tempo definido terminar.
@@ -42,7 +46,9 @@ const Search = () => {
   }, [city]); // O "[city]" garante que a chamada para a Api só irá acontecer quando a váriavel city mudar.
 
   // Conexão com a api para busca das cidades.
-  const fetchCity = async (city: String): Promise<City[] | any> => {
+  const fetchCity = async (
+    city: String /* Está passando o nome da cidade armazenado em city para o fetch */,
+  ): Promise<City[] | any> => {
     try {
       // Variável que armazena a conexão da api.
       const response = await fetch(
@@ -54,6 +60,12 @@ const Search = () => {
     } catch (err) {
       console.error("Conexão não estabelecida", err); // Para caso tenha algum erro na conexão com a api será mostrado a mensagem no console.
     }
+  };
+
+  const handleCitySelect = (city: City) => {
+    onCitySelect(city);
+    setCity("");
+    setSuggestions([]);
   };
 
   return (
@@ -86,6 +98,7 @@ const Search = () => {
                 <li
                   className="hover:bg-white/30 cursor-pointer p-1 pl-2 rounded-xl"
                   key={item.id} //Key de identificação baseado no id da cidade para cada item.
+                  onClick={() => handleCitySelect(item)}
                 >
                   {item.name}, {item.admin1}, {item.country}
                   {/* Exemplo: Belo Horizonte, Minas Gerais, Brasil */}
