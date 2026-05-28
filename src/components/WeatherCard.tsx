@@ -1,8 +1,18 @@
-import { CloudSunIcon, MapPinIcon } from "@phosphor-icons/react";
+import {
+  CloudFogIcon,
+  CloudIcon,
+  CloudLightningIcon,
+  CloudMoonIcon,
+  CloudRainIcon,
+  CloudSunIcon,
+  MapPinIcon,
+  MoonIcon,
+  SunIcon,
+} from "@phosphor-icons/react";
 import type { City } from "./Search";
 import { useEffect, useState } from "react";
 
-interface Forecast {
+interface ForecastCurrent {
   time: string;
   temperature_2m: number | any;
   apparent_temperature: number;
@@ -11,8 +21,14 @@ interface Forecast {
   weather_code: number;
 }
 
+interface ForecastHourly {
+  temperature_2m_max: number;
+  temperature_2m_min: number;
+}
+
 interface WeatherResponse {
-  current: Forecast;
+  current: ForecastCurrent;
+  hourly: ForecastHourly;
   current_units: { temperature_2m: string };
 }
 
@@ -25,11 +41,37 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     null,
   );
 
+  const getWeatherIcon = (code: number, isDay: number, size = 24) => {
+    const icons: Record<number, React.ReactNode> = {
+      0: isDay === 1 ? <SunIcon size={size} /> : <MoonIcon size={size} />,
+      1:
+        isDay === 1 ? (
+          <CloudSunIcon size={size} />
+        ) : (
+          <CloudMoonIcon size={size} />
+        ),
+      2: <CloudIcon size={size} />,
+      3: <CloudIcon size={size} />,
+      45: <CloudFogIcon size={size} />,
+      48: <CloudFogIcon size={size} />,
+      51: <CloudRainIcon size={size} />,
+      53: <CloudRainIcon size={size} />,
+      55: <CloudRainIcon size={size} />,
+      61: <CloudRainIcon size={size} weight="fill" />,
+      63: <CloudRainIcon size={size} weight="fill" />,
+      65: <CloudRainIcon size={size} weight="fill" />,
+      95: <CloudLightningIcon size={size} />,
+      96: <CloudLightningIcon size={size} />,
+      99: <CloudLightningIcon size={size} />,
+    };
+    return icons[code] || <CloudIcon size={size} />;
+  };
+
   useEffect(() => {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,is_day,rain,apparent_temperature,relative_humidity_2m,weather_code&timezone=auto`,
+          `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,is_day,rain,apparent_temperature,relative_humidity_2m,weather_code&hourly=temperature_2m_max,temperature_2m_min&timezone=auto`,
         );
         const data: WeatherResponse = await response.json();
         setForecastData(data);
@@ -40,6 +82,11 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
 
     fetchWeather();
   }, [city]);
+
+  // Enquanto os dados não chegam, podemos exibir um estado de carregamento ou nada
+  if (!forecastData) {
+    return null;
+  }
 
   return (
     <>
@@ -52,19 +99,30 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
               <span>{forecastData?.current.time}</span>
             </header>
 
-            <span className="flex justify-start items-center">
+            <span className="flex justify-start items-center text-xl">
               <MapPinIcon size={24} weight="fill" />
               <p>{city.name}</p>
             </span>
 
             <span className="flex justify-end items-center">
-              <p>30°/24°</p>
+              {/* <p>30°/24°</p> */}
+              {/* Exemplo de exibição da sensação térmica */}
+              <p>
+                {Math.ceil(forecastData.current.apparent_temperature)}
+                {forecastData.current_units.temperature_2m}
+              </p>
             </span>
           </div>
 
           <div className="flex flex-col justify-centers items-center text-2xl">
-            <CloudSunIcon size={64} weight="fill" />
+            {/* <CloudSunIcon size={64} weight="fill" /> */}
+            {getWeatherIcon(
+              forecastData.current.weather_code,
+              forecastData.current.is_day,
+              64,
+            )}
             {Math.ceil(forecastData?.current.temperature_2m)}
+            {forecastData?.current_units.temperature_2m}
           </div>
 
           {/* <div className="flex justify-between text-xs md:text-xl">
