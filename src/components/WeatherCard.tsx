@@ -21,14 +21,16 @@ interface ForecastCurrent {
   weather_code: number;
 }
 
-interface ForecastHourly {
-  temperature_2m_max: number;
-  temperature_2m_min: number;
+interface ForecastDaily {
+  time: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
 }
 
 interface WeatherResponse {
   current: ForecastCurrent;
-  hourly: ForecastHourly;
+  daily: ForecastDaily;
   current_units: { temperature_2m: string };
 }
 
@@ -71,7 +73,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,is_day,rain,apparent_temperature,relative_humidity_2m,weather_code&hourly=temperature_2m_max,temperature_2m_min&timezone=auto`,
+          `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,is_day,rain,apparent_temperature,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`,
         );
         const data: WeatherResponse = await response.json();
         setForecastData(data);
@@ -87,6 +89,14 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
   if (!forecastData) {
     return null;
   }
+
+  const dateFormatPt = (date: string) => {
+    const formattedDate = new Date(date).toLocaleDateString("pt-BR", {
+      weekday: "long",
+    });
+
+    return formattedDate;
+  };
 
   return (
     <>
@@ -125,33 +135,68 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
             {forecastData?.current_units.temperature_2m}
           </div>
 
-          {/* <div className="flex justify-between text-xs md:text-xl">
-            <span className="flex flex-col items-center">
-              <p>Seg</p>
-              <CloudSunIcon size={28} />
-              <p>35°/25°</p>
-            </span>
-            <span className="flex flex-col items-center">
-              <p>Seg</p>
-              <CloudSunIcon size={28} />
-              <p>35°/25°</p>
-            </span>
-            <span className="flex flex-col items-center">
-              <p>Seg</p>
-              <CloudSunIcon size={28} />
-              <p>35°/25°</p>
-            </span>
-            <span className="flex flex-col items-center">
-              <p>Seg</p>
-              <CloudSunIcon size={28} />
-              <p>35°/25°</p>
-            </span>
-            <span className="flex flex-col items-center">
-              <p>Seg</p>
-              <CloudSunIcon size={28} />
-              <p>35°/25°</p>
-            </span>
-          </div> */}
+          <div className="flex justify-between text-xs md:text-sm">
+            {forecastData.daily.time.map((item: string, index: number) => {
+              if (index < 4) {
+                return (
+                  <span className="flex flex-col items-center">
+                    <p>{dateFormatPt(item)}</p>
+                    <div />{" "}
+                    {getWeatherIcon(
+                      forecastData.daily.weather_code[index],
+                      1,
+                      24,
+                    )}{" "}
+                    <div />
+                    <p>
+                      {Math.round(forecastData.daily.temperature_2m_max[index])}
+                      {forecastData.current_units.temperature_2m} /{" "}
+                      {Math.round(forecastData.daily.temperature_2m_min[index])}
+                      {forecastData.current_units.temperature_2m}
+                    </p>
+                  </span>
+                );
+              } else if (index < 5) {
+                return (
+                  <span className="hidden md:flex flex-col items-center">
+                    <p>{dateFormatPt(item)}</p>
+                    <div />{" "}
+                    {getWeatherIcon(
+                      forecastData.daily.weather_code[index],
+                      1,
+                      24,
+                    )}{" "}
+                    <div />
+                    <p>
+                      {Math.round(forecastData.daily.temperature_2m_max[index])}
+                      {forecastData.current_units.temperature_2m} /{" "}
+                      {Math.round(forecastData.daily.temperature_2m_min[index])}
+                      {forecastData.current_units.temperature_2m}
+                    </p>
+                  </span>
+                );
+              } else {
+                return (
+                  <span className="hidden lg:flex flex-col items-center">
+                    <p>{dateFormatPt(item)}</p>
+                    <div />{" "}
+                    {getWeatherIcon(
+                      forecastData.daily.weather_code[index],
+                      1,
+                      24,
+                    )}{" "}
+                    <div />
+                    <p>
+                      {Math.round(forecastData.daily.temperature_2m_max[index])}
+                      {forecastData.current_units.temperature_2m} /{" "}
+                      {Math.round(forecastData.daily.temperature_2m_min[index])}
+                      {forecastData.current_units.temperature_2m}
+                    </p>
+                  </span>
+                );
+              }
+            })}
+          </div>
         </div>
       </section>
     </>
