@@ -91,11 +91,13 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
   }
 
   const dateFormatPt = (date: string) => {
-    const formattedDate = new Date(date).toLocaleDateString("pt-BR", {
-      weekday: "long",
-    });
+    const [year, month, day] = date.split("-").map(Number);
 
-    return formattedDate;
+    const formattedDate = new Date(year, month - 1, day);
+
+    return new Intl.DateTimeFormat("pt-BR", {
+      weekday: "long",
+    }).format(formattedDate);
   };
 
   return (
