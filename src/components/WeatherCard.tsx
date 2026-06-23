@@ -100,6 +100,14 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     }).format(formattedDate);
   };
 
+  const formattedDateHeader = new Date(
+    forecastData?.current.time,
+  ).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    weekday: "long",
+  });
+
   return (
     <>
       {/* Container principal do weather card */}
@@ -108,7 +116,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
         <div className="w-4/5 h-9/12 md:w-3/4 lg:w-1/2 p-6 md:p-8 flex flex-col justify-between border rounded-3xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
           <div className="grid grid-cols-2 gap-2 items-center font-bold text-2xl">
             <header className="flex justify-center col-span-2">
-              <span>{forecastData?.current.time}</span>
+              <span className="text-xl md:text-2xl">{`${formattedDateHeader.charAt(0).toUpperCase()}${formattedDateHeader.slice(1)}`}</span>
             </header>
 
             <span className="flex justify-start items-center text-xl">
