@@ -12,6 +12,7 @@ import {
 import type { City } from "./Search";
 import { useEffect, useState } from "react";
 
+//Interface para definir os dados que serão usados do Objeto Current, para dados principais de previsão do dia atual
 interface ForecastCurrent {
   time: string;
   temperature_2m: number | any;
@@ -21,13 +22,17 @@ interface ForecastCurrent {
   weather_code: number;
 }
 
+// Interface para definir os dados que serão usados do objeto Daily, para dados de previsão diária
 interface ForecastDaily {
-  time: string[];
-  weather_code: number[];
-  temperature_2m_max: number[];
-  temperature_2m_min: number[];
+  // O índice de cada lista se correlaciona com o mesmo indice de qualquer outra lista
+  // Por exemplo: O código de clima do indice 0 é o código da data de indice 0 também
+  time: string[]; // Lista de datas
+  weather_code: number[]; // Lista código do clima do dia relacionado a cada data do time
+  temperature_2m_max: number[]; // Lista de temperatura máxima relacionado a cada data do time
+  temperature_2m_min: number[]; // Lista de temperatura Mínina relacionado a cada data do time
 }
 
+// Interface que junta os dados das outras duas interfaces Current e Daily em uma apenas para facilidade do uso
 interface WeatherResponse {
   current: ForecastCurrent;
   daily: ForecastDaily;
@@ -38,6 +43,7 @@ interface WeatherCardProps {
   city: City;
 }
 
+// Váriavel de estado para armazenar os dados da resposta da API
 const WeatherCard = ({ city }: WeatherCardProps) => {
   const [forecastData, setForecastData] = useState<WeatherResponse | null>(
     null,
@@ -90,6 +96,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     return null;
   }
 
+  // Função para foratação de data para mostrar apenas
   const dateFormatPt = (date: string) => {
     const [year, month, day] = date.split("-").map(Number);
 
