@@ -16,6 +16,7 @@ export interface GeocodingResponse {
   results?: City[] | any;
 }
 
+//interface para definir o que a função onCitySelect vai receber para enviar para o Weather Card.
 interface SearchProps {
   onCitySelect: (city: City) => void;
 }
@@ -57,11 +58,12 @@ const Search = ({ onCitySelect }: SearchProps) => {
       const data: GeocodingResponse = await response.json(); // Variável que recebe os dados da api.
       setSuggestions(data.results || []); // Atualiza a variável de sugestões com os dados da api.
       setShowDroppdown(true); // Altera o valor para true, para mostrar as sugestões.
-    } catch (err) {
-      console.error("Conexão não estabelecida", err); // Para caso tenha algum erro na conexão com a api será mostrado a mensagem no console.
+    } catch (error) {
+      console.error("Conexão não estabelecida", error); // Para caso tenha algum erro na conexão com a api será mostrado a mensagem no console.
     }
   };
 
+  // Função que seleciona os valor da cidade para enviar para o WeatherCard através da Props onCitySelected.
   const handleCitySelect = (city: City) => {
     onCitySelect(city);
     setCity("");

@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 
 //Interface para definir os dados que serão usados do Objeto Current, para dados principais de previsão do dia atual
 interface ForecastCurrent {
-  timezone: string | any;
   time: string;
   temperature_2m: number | any;
   apparent_temperature: number;
@@ -41,6 +40,7 @@ interface ForecastDaily {
 interface WeatherResponse {
   current: ForecastCurrent;
   daily: ForecastDaily;
+  timezone: String | any;
   current_units: {
     temperature_2m: string;
     wind_speed_10m: string;
@@ -63,13 +63,8 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     // Criação de um objeto icons para vincular o icone com o código WeatherCode do clima retornado da api
     // Esse objeto foi definido com o utiliy type "Record" que define qual é o tipo de dado da chave e do valor da chave que o objeto deve seguir
     const icons: Record<number, React.ReactNode> = {
-      0: isDay === 1 ? <SunIcon size={size} /> : <MoonIcon size={size} />,
-      1:
-        isDay === 1 ? (
-          <CloudSunIcon size={size} />
-        ) : (
-          <CloudMoonIcon size={size} />
-        ),
+      0: isDay ? <SunIcon size={size} /> : <MoonIcon size={size} />,
+      1: isDay ? <CloudSunIcon size={size} /> : <CloudMoonIcon size={size} />,
       2: <CloudIcon size={size} />,
       3: <CloudIcon size={size} />,
       45: <CloudFogIcon size={size} />,
@@ -89,15 +84,15 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
 
   // Função para conectar com a api que irá fazer a chamada apenas quando o valor de city alterar
   useEffect(() => {
-    const fetchWeather = async () => {
+    const fetchWeather = async (): Promise<WeatherResponse[] | any> => {
       try {
         const response = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,is_day,rain,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`,
         );
         const data: WeatherResponse = await response.json();
         setForecastData(data);
-      } catch (err) {
-        console.error("Conexão não estabelecida", err);
+      } catch (error) {
+        console.error("Conexão não estabelecida", error);
       }
     };
 
@@ -133,7 +128,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
   const currentTimeFormatted = new Intl.DateTimeFormat("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: forecastData.current.timezone,
+    timeZone: forecastData.timezone,
   }).format(new Date());
 
   return (
@@ -204,7 +199,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
             {forecastData.daily.time.map((item: string, index: number) => {
               if (index < 4) {
                 return (
-                  <span className="flex flex-col items-center">
+                  <span className="flex flex-col items-center" key={index}>
                     <p>{dateFormatPt(item)}</p>{" "}
                     {/* Chamando a função que formata a string da data para mostrar na tela */}
                     <div />{" "}
@@ -233,7 +228,10 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
                 );
               } else if (index < 5) {
                 return (
-                  <span className="hidden md:flex flex-col items-center">
+                  <span
+                    className="hidden md:flex flex-col items-center"
+                    key={index}
+                  >
                     <p>{dateFormatPt(item)}</p>
                     <div />{" "}
                     {getWeatherIcon(
@@ -252,7 +250,10 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
                 );
               } else {
                 return (
-                  <span className="hidden lg:flex flex-col items-center">
+                  <span
+                    className="hidden lg:flex flex-col items-center"
+                    key={index}
+                  >
                     <p>{dateFormatPt(item)}</p>
                     <div />{" "}
                     {getWeatherIcon(
