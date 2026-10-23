@@ -11,6 +11,7 @@ import {
   WindIcon,
   DropIcon,
   ThermometerIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react";
 import type { City } from "./Search";
 import { useEffect, useState } from "react";
@@ -57,6 +58,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
   const [forecastData, setForecastData] = useState<WeatherResponse | null>(
     null,
   );
+  const [showCaption, setShowCaption] = useState<Boolean>(false);
 
   //Função para selecionar o icone certo de acordo com o weatherCode relacionado ao clima atual da cidade buscada
   const getWeatherIcon = (code: number, isDay: number, size = 24) => {
@@ -75,9 +77,9 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
       61: <CloudRainIcon size={size} weight="fill" />,
       63: <CloudRainIcon size={size} weight="fill" />,
       65: <CloudRainIcon size={size} weight="fill" />,
-      95: <CloudLightningIcon size={size} />,
-      96: <CloudLightningIcon size={size} />,
-      99: <CloudLightningIcon size={size} />,
+      95: <CloudLightningIcon size={size} weight="fill" />,
+      96: <CloudLightningIcon size={size} weight="fill" />,
+      99: <CloudLightningIcon size={size} weight="fill" />,
     };
     return icons[code] || <CloudIcon size={size} />; // Retorna o ícone relacionado ao código ou retorna o icone de nuvem caso não tenha o código.
   };
@@ -131,13 +133,57 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     timeZone: forecastData.timezone,
   }).format(new Date());
 
+  // const handleShowCaption = () => {
+  //   return <></>;
+  // };
+
   return (
     <>
       {/* Container principal do weather card */}
       <section className="fixed inset-0 -z-10 mt-10 h-screen w-screen flex justify-center items-center">
         {/* Container que cria o card e contém todos os itens dentro do card */}
-        <div className="w-4/5 h-9/12 md:w-3/4 lg:w-1/2 p-6 md:p-8 flex flex-col justify-between border rounded-3xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
+        <div className="w-10/12 h-9/12 md:w-3/4 lg:w-1/2 p-6 md:p-8 flex flex-col justify-between border rounded-3xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
           <div className="grid grid-cols-2 gap-2 items-center font-bold text-2xl">
+            <WarningCircleIcon
+              size={24}
+              className="absolute top-4 right-4 hover:cursor-pointer"
+              onClick={() => setShowCaption((showCaption) => !showCaption)}
+            />
+
+            {showCaption && (
+              <div className="absolute top-15 right-0.5 w-full rounded-xl bg-white/60 p-2 text-black ">
+                <section className="text-sm md:text-base flex flex-col gap-2">
+                  <p className="flex flex-row">
+                    <SunIcon size={20} /> - Dia ensolarado
+                  </p>
+                  <p className="flex flex-row">
+                    <MoonIcon size={20} /> - Noite clara
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudSunIcon size={20} /> - Dia Parcialmente nublado
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudMoonIcon size={20} /> - Noite Parcialmente nublado
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudIcon size={20} /> - Nublado
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudFogIcon size={20} /> - Neblina
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudRainIcon size={20} /> - Chuva leve
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudRainIcon size={20} weight="fill" /> - Chuva forte
+                  </p>
+                  <p className="flex flex-row">
+                    <CloudLightningIcon size={20} weight="fill" /> - Tempestade
+                  </p>
+                </section>
+              </div>
+            )}
+
             <header className="flex flex-col justify-center items-center col-span-2">
               {/* Data do dia atual */}
               <span className="text-xl md:text-2xl">{`${formattedDateHeader.charAt(0).toUpperCase()}${formattedDateHeader.slice(1)}`}</span>

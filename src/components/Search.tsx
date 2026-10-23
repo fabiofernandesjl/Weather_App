@@ -90,7 +90,7 @@ const Search = ({ onCitySelect }: SearchProps) => {
         </div>
       </header>
 
-      {/* Droppdown de sugestões de cidades trazidos da api baseado no que o usuário digitou */}
+      {/* Droppdown de sugestões de cidades trazidos da api baseado no que o usuário digitou. */}
       {showDroppdown && suggestions.length > 0 && (
         <div className="flex justify-center items-center">
           <div className="w-4/5 lg:w-4xl md:text-xl font-bold px-2 py-2 flex flex-col gap-2 rounded-2xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
@@ -100,7 +100,7 @@ const Search = ({ onCitySelect }: SearchProps) => {
                 <li
                   className="hover:bg-white/30 cursor-pointer p-1 pl-2 rounded-xl"
                   key={item.id} //Key de identificação baseado no id da cidade para cada item.
-                  onClick={() => handleCitySelect(item)}
+                  onClick={() => handleCitySelect(item)} //Função que vai enviar os dados da cidade selecionada para o WeatherCard.
                 >
                   {item.name}, {item.admin1}, {item.country}
                   {/* Exemplo: Belo Horizonte, Minas Gerais, Brasil */}
