@@ -59,6 +59,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     null,
   );
   const [showCaption, setShowCaption] = useState<Boolean>(false);
+  const [currentTimeFormatted, setCurrentTimeFormatted] = useState<string>("");
 
   //Função para selecionar o icone certo de acordo com o weatherCode relacionado ao clima atual da cidade buscada
   const getWeatherIcon = (code: number, isDay: number, size = 24) => {
@@ -101,6 +102,32 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     fetchWeather();
   }, [city]);
 
+  const clockTimeFormatted = () => {
+    const hourFormatted = new Intl.DateTimeFormat("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZone: forecastData?.timezone,
+    }).format(new Date());
+
+    setCurrentTimeFormatted(hourFormatted);
+  };
+
+  // useEffect para atualizar o horário a cada minuto
+  useEffect(() => {
+    if (!forecastData) {
+      return;
+    }
+
+    clockTimeFormatted(); // Atualiza o horário imediatamente ao montar o componente
+
+    const interval = setInterval(() => {
+      clockTimeFormatted();
+    }, 1000); // Atualiza a cada 60 segundos (60000 milissegundos)
+
+    return () => clearInterval(interval); // Limpa o intervalo quando o componente é desmontado
+  }, [currentTimeFormatted, forecastData]); // Adiciona forecastData como dependência para garantir que o horário seja atualizado corretamente quando novos dados forem carregados
+
   // Enquanto os dados não chegam, podemos exibir um estado de carregamento ou nada.
   if (!forecastData) {
     return null;
@@ -118,7 +145,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     }).format(formattedDate);
   };
 
-  // Mesmo ação da função anterior
+  // Mesmo que a função acima, mas essa formata a data para mostrar no header do card, mostrando o dia da semana, o dia e o mês.
   const formattedDateHeader = new Date(
     forecastData?.current.time,
   ).toLocaleDateString("pt-BR", {
@@ -127,16 +154,6 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
     weekday: "long",
   });
 
-  const currentTimeFormatted = new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: forecastData.timezone,
-  }).format(new Date());
-
-  // const handleShowCaption = () => {
-  //   return <></>;
-  // };
-
   return (
     <>
       {/* Container principal do weather card */}
@@ -144,6 +161,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
         {/* Container que cria o card e contém todos os itens dentro do card */}
         <div className="w-10/12 h-9/12 md:w-3/4 lg:w-1/2 p-6 md:p-8 flex flex-col justify-between border rounded-3xl shadow-xl backdrop-blur-md bg-white/20 border-white/30 text-white">
           <div className="grid grid-cols-2 gap-2 items-center font-bold text-2xl">
+            {/* Container para as legendas de cada ícone do weather app */}
             <WarningCircleIcon
               size={24}
               className="absolute top-4 right-4 hover:cursor-pointer"
@@ -151,6 +169,7 @@ const WeatherCard = ({ city }: WeatherCardProps) => {
             />
 
             {showCaption && (
+              // Container que mostra a legenda de cada ícone do weather app, mostrando o ícone e o significado do mesmo
               <div className="absolute top-15 right-0.5 w-full rounded-xl bg-white/60 p-2 text-black ">
                 <section className="text-sm md:text-base flex flex-col gap-2">
                   <p className="flex flex-row">
